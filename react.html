@@ -1,0 +1,46 @@
+<body>
+<div id="app"></div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.6.3/rxjs.umd.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.8.4/umd/react.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.8.4/umd/react-dom.development.js"></script>
+<script>
+  const h= React.createElement;
+  const Fragment=React.Fragment;
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.js"></script>
+<script src="js/mak-from.js"></script>
+
+  <script type="text/jsx">
+    ReactDOM.render(
+	<React.Fragment>
+            <dl>{
+                from("ProductionLine line").map(
+                    data =>
+                        <span>
+                        <dt>{data("line.name")}</dt>
+                        <dd><ul>{from("Task t").where("t.line=line").map(
+				data =>
+				    <li>
+				    {data("t.customer")}:{data("t.days")}
+				    </li>
+			    )}
+		    </ul>
+			</dd>
+			</span>
+		)
+	    }</dl>
+	    <dl><dt>Park:</dt>
+                        <dd><ul>{from("Task t").where("t.line=nil").map(
+			    data =>
+				<li>
+				{data("t.customer")}:{data("t.days")}
+			    </li>
+			)}
+		    </ul>
+			</dd>
+	    </dl>
+	    </React.Fragment>
+	    , document.body.querySelector("#app"));
+  </script>

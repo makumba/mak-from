@@ -1,0 +1,43 @@
+<body>
+<div id="app"></div>
+</body>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/vue@next/dist/vue.global.js"></script>
+<script>
+  // Babel generates calls to React.createElement by default
+  const React={createElement:Vue.h}
+</script>
+<script src="js/mak-from.js"></script>
+<script type="text/jsx">
+  Vue.render(
+      <Vue.Fragment>
+            <dl>{
+                from("ProductionLine line").orderBy("line.name desc").map(
+                    data =>
+                        <span>
+                        <dt>{data("line.name")}</dt>
+                        <dd><ul>{from("Task t").where("t.line=line").map(
+			    data =>
+				<li>
+				{data("t.customer")}: {data("t.days")}
+			    </li>
+			)}</ul>
+			</dd>
+			</span>
+		)
+	    }</dl>
+	  <dl><dt>Park:</dt>
+          <dd><ul>{from("Task t").where("t.line=nil").map(
+	      data =>
+		  <li>
+		  {data("t.customer")}:{data("t.days")}
+			    </li>
+	  )}
+      </ul>
+	  </dd>
+	  </dl>
+	  
+      </Vue.Fragment>
+	    , document.body.querySelector("#app"));
+  </script>
+

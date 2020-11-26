@@ -1,0 +1,12 @@
+<script src="js/mak-from.js"></script>
+<body></body>
+<script>
+  from("ProductionLine l").map(data=>({
+      name:data("l.name"),
+      tasks:from("Task t").where("t.line=l").map(data => ({
+          cust: data("t.customer"),
+          days: data("t.days")
+      }))
+  })).then(d=>document.body.append(JSON.stringify(d)))
+</script>
+
