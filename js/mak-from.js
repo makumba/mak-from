@@ -24,7 +24,7 @@ let queryState={
     },
     
     findQuery(q){
-	const {queryState, ...props}=q;
+	const {queryState, loading, ...props}=q;
 	const key=JSON.stringify(props);
 	const ret= this.queryFinder[key];
 	if(ret)
@@ -55,11 +55,13 @@ function from(from){
 class Query{
     constructor(props){
 	Object.assign(this, props);
+	this.loading=()=>"";
     }
 
     where(where){ return new Query({...this, where});}
     orderBy(orderBy){ return new Query({...this, orderBy});}
     groupBy(groupBy){ return new Query({...this, groupBy});}
+    loading(loading){ return new Query({...this, loading});}
 
     map(func, qs=queryState){
 	this.parent=qs.parent;
@@ -86,8 +88,8 @@ class Query{
 	const prms=refresh();
 
 	prms.refresh= ()=> refresh();
-	prms.toReact=()=>toReact(prms);
-	prms.toVue=()=>toVue(prms);
+	prms.toReact=()=>toReact(prms, this.loading);
+	prms.toVue=()=>toVue(prms, this.loading);
 	let ret= prms;
 	try{
 	    Vue;
@@ -158,17 +160,17 @@ const Mak={
     sync(){ this.subscribers && this.subscribers.forEach(o=>o());}
 };
 
-function RenderPromiseReact({promise}){
+function RenderPromiseReact({promise, loading}){
     const [data, setData]=React.useState();
     const [error, setError]=React.useState();
     React.useEffect(()=> {promise.then(d=> setData(d)).catch(e=>setError(e));}, []);
     React.useEffect(()=> Mak.addObserver(()=> promise.refresh().then(d=> setData(d)).catch(e=>setError(e))), []);
     
-    return error || data || "loading";
+    return error || data || loading();
 }
 
 const RenderPromiseVue={
-    props:["promise"],
+    props:["promise", "loading"],
     data(){
 	return { data:null, error:null};
     },
@@ -177,16 +179,16 @@ const RenderPromiseVue={
 	this.unsubscribe=Mak.addObserver(()=> this.promise.refresh().then(d=> this.data=d).catch(e=>this.error=e));
     },
     render(){
-	return this.error || this.data || "loading";	
+	return this.error || this.data || this.loading();
     },
     unmounted(){
 	this.unsubscribe();
     }
 };
 
-function toReact(promise){
-    return React.createElement(RenderPromiseReact, {promise});
+function toReact(promise, loading){
+    return React.createElement(RenderPromiseReact, {promise, loading});
 }
-function toVue(promise){
-    return Vue.h(RenderPromiseVue, {promise});
+function toVue(promise, loading){
+    return Vue.h(RenderPromiseVue, {promise, loading});
 }
