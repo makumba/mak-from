@@ -8,7 +8,7 @@ async function hitDatabase(queries){
 	    "&analyzeOnly=false"
     });
     if(!r.ok)
-	throw await r.json();
+	throw JSON.stringify(await r.json());
     return await r.json();
 }
 
@@ -164,7 +164,7 @@ function RenderPromiseReact({promise}){
     React.useEffect(()=> {promise.then(d=> setData(d)).catch(e=>setError(e));}, []);
     React.useEffect(()=> Mak.addObserver(()=> promise.refresh().then(d=> setData(d)).catch(e=>setError(e))), []);
     
-    return error && JSON.stringify(error) || data || "loading";
+    return error || data || "loading";
 }
 
 const RenderPromiseVue={
@@ -177,7 +177,7 @@ const RenderPromiseVue={
 	this.unsubscribe=Mak.addObserver(()=> this.promise.refresh().then(d=> this.data=d).catch(e=>this.error=e));
     },
     render(){
-	return this.error && JSON.stringify(this.error) || this.data || "loading";	
+	return this.error || this.data || "loading";	
     },
     unmounted(){
 	this.unsubscribe();
