@@ -174,9 +174,13 @@ const RenderPromiseVue={
     },
     created(){
 	this.promise.then(d=>this.data=d).catch(e=>this.error=e);
+	this.unsubscribe=Mak.addObserver(()=> this.promise.refresh().then(d=> this.data=d).catch(e=>this.error=e));
     },
     render(){
 	return this.error && JSON.stringify(this.error) || this.data || "loading";	
+    },
+    unmounted(){
+	this.unsubscribe();
     }
 };
 
