@@ -78,8 +78,13 @@ class Query{
 	qs.queryDiscovery=false;
 	this.queryState=Object.assign({},qs);
 	qs.cleanup();
-	const prms= this.runQueries(func);
+	
+	const refresh=()=>{
+	    return this.runQueries(func);
+	};
+	const prms=refresh();
 
+	prms.refresh= ()=> refresh();
 	prms.toReact=()=>toReact(prms);
 	prms.toVue=()=>toVue(prms);
 	let ret= prms;
@@ -108,7 +113,6 @@ class Query{
 	    queryState=this.queryState;
 	    result= this.iterate(func, queryState, 0);
 	}while(this.queryState.dirty || this.queryState.queryDirty);
-	this.queryState.cleanup();
 	return result;
     }
 
@@ -144,10 +148,17 @@ class Query{
     
 }
 
+const Mak={
+    addObserver(o){ this.subscribers= this.subscribers?[...this.subscribers, o]:[o]; return ()=>this.removeObserver(o); },
+    removeObserver(o){ this.subscribers= this.subscribers.filter(x=>x!=o);},
+    sync(){ this.subscribers && this.subscribers.forEach(o=>o());}
+};
+
 function RenderPromiseReact({promise}){
     const [data, setData]=React.useState();
     const [error, setError]=React.useState();
-    React.useEffect(()=> {promise.then(d=> setData(d)).catch(e=>setError(e));});
+    React.useEffect(()=> {promise.then(d=> setData(d)).catch(e=>setError(e));}, []);
+    React.useEffect(()=> Mak.addObserver(()=> promise.refresh().then(d=> setData(d)).catch(e=>setError(e))), []);
     
     return error && JSON.stringify(error) || data || "loading";
 }
