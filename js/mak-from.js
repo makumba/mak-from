@@ -70,13 +70,14 @@ class Query{
 	else 
 	    return this.childMap(func, qs, queryIndex);
     }
-
     
     rootMap(func, qs){
 	qs.queryDiscovery=true;
 	this.dryRun(func, qs, 0);
 	qs.queryDiscovery=false;
 	this.queryState=Object.assign({},qs);
+
+	// leave a clean state after analysis
 	qs.cleanup();
 	
 	const refresh=()=>{
@@ -113,6 +114,9 @@ class Query{
 	    queryState=this.queryState;
 	    result= this.iterate(func, queryState, 0);
 	}while(this.queryState.dirty || this.queryState.queryDirty);
+	// leave a clean state after data iteration
+	queryState=Object.assign({},this.queryState);
+	queryState.cleanup();
 	return result;
     }
 
