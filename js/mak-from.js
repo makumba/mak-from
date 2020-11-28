@@ -125,23 +125,26 @@ class Query{
     iterate(func, qs, queryIndex){
 	const dt=qs.data;
 	try{
-	    return qs.data[queryIndex].map(function(d){
+	    return dt[queryIndex].map(function(d, i, arr){
 		qs.data=d;
 		qs.parent=queryIndex;
-		return func(function(proj){
+		Mak.expr=function(proj){
 		    // TODO: dirty
 		    return d[proj];
-		});
+		};
+		return func(Mak.expr, i, arr);	      
 	    });
 	}finally{
 	    qs.data=dt;
 	    qs.parent=this.parent;
+	    Mak.expr=null;
 	}
     }
     dryRun(func, qs, queryIndex){
 	qs.parent=queryIndex;
 	try{
-	    func(proj=>qs.collectProjections(proj, queryIndex), -1, []);
+	    Mak.expr= function(proj){ return qs.collectProjections(proj, queryIndex);};
+	    func(Mak.expr, -1, []);
 	}finally{ qs.parent=this.parent;}
     }
     childMap(func, qs, queryIndex){
