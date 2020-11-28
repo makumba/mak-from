@@ -128,24 +128,22 @@ class Query{
 	    return dt[queryIndex].map(function(d, i, arr){
 		qs.data=d;
 		qs.parent=queryIndex;
-		Mak.expr=function(proj){
+		return func(Mak.variableExpr=function(proj){
 		    // TODO: dirty
 		    return d[proj];
-		};
-		return func(Mak.expr, i, arr);	      
+		}, i, arr);	      
 	    });
 	}finally{
 	    qs.data=dt;
 	    qs.parent=this.parent;
-	    Mak.expr=null;
+	    Mak.variableExpr=null;
 	}
     }
     dryRun(func, qs, queryIndex){
 	qs.parent=queryIndex;
-	try{
-	    Mak.expr= function(proj){ return qs.collectProjections(proj, queryIndex);};
-	    func(Mak.expr, -1, []);
-	}finally{ qs.parent=this.parent; Mak.expr=null;}
+	try{	    
+	    func(Mak.variableExpr= function(proj){ return qs.collectProjections(proj, queryIndex);}, -1, []);
+	}finally{ qs.parent=this.parent; Mak.variableExpr=null;}
     }
     childMap(func, qs, queryIndex){
 	if(qs.queryDiscovery){
@@ -160,7 +158,8 @@ class Query{
 const Mak={
     addObserver(o){ this.subscribers= this.subscribers?[...this.subscribers, o]:[o]; return ()=>this.removeObserver(o); },
     removeObserver(o){ this.subscribers= this.subscribers.filter(x=>x!=o);},
-    sync(){ this.subscribers && this.subscribers.forEach(o=>o());}
+    sync(){ this.subscribers && this.subscribers.forEach(o=>o());},
+    expr(expr){return this.variableExpr(expr);}
 };
 
 function RenderPromiseReact({promise, loading}){
