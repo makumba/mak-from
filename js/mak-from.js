@@ -145,7 +145,7 @@ class Query{
 	try{
 	    Mak.expr= function(proj){ return qs.collectProjections(proj, queryIndex);};
 	    func(Mak.expr, -1, []);
-	}finally{ qs.parent=this.parent;}
+	}finally{ qs.parent=this.parent; Mak.expr=null;}
     }
     childMap(func, qs, queryIndex){
 	if(qs.queryDiscovery){
