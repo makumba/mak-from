@@ -1,5 +1,5 @@
 async function hitDatabase(queries){   
-    const r= await fetch("https://brfenergi.se/task-planner/MakumbaQueryServlet", {
+    const r= await fetch("http://standup.csc.kth.se:8080/mak-backend/MakumbaQueryServlet", {
 	method: "POST",
 	credentials: "include",
 	body:
